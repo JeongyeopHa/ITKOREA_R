@@ -1,0 +1,51 @@
+# 컬럼이 한국어일 때 아래와 같이 설정합니다.
+health = read.csv('국민건강보험공단_건강검진정보.csv', 
+                  fileEncoding = 'CP949', 
+                  encoding = 'UTF-8', 
+                  check.names = FALSE)
+
+# 혈색소 데이터를 min-max 스케일링 하시오
+# 최솟값, 최댓값
+혈색소_최솟값 = min(health$혈색소)
+혈색소_최댓값 = max(health$혈색소) 
+
+health$혈색소_스케일링 = (health$혈색소 - 혈색소_최솟값) / (혈색소_최댓값 - 혈색소_최솟값)
+
+#View(health)
+library(dplyr)  # 로드
+# nrow() : 행 수
+# 0.8을 기준으로 잡는다. 0.81 ~ 1 사이 데이터를 이상치값 이라고 한다. 
+결과 = health %>% filter(혈색소_스케일링 > 0.8) %>% nrow()
+print(결과)
+# 문제1. 데이터 구조확인
+str(health)
+# 문제2. 상위 5행까지 출력
+head(health, 5)
+
+# 괄호가 있는 컬럼은 ``
+결과 = health %>% select(`혈청지오티(AST)`)
+
+# 데이터 구조는 문제풀기 전 *****
+str(health)
+# 성별, 연령대, 그리고 지역 열만 조회
+결과 = health %>% select(성별, `연령대코드(5세단위)`, 시도코드)
+# 2022년에 건강검진을 받은 사람 중 음주여부가 1인 사람의 가입자일련번호, 성별 조회
+결과 = health %>% filter(기준년도 == 2022 & 음주여부 == 1) %>% select(가입자일련번호, 성별)
+# (height)와 몸무게(weight) 열을 사용하여 새로운 열 BMI를 추가하세요.
+# 추가,수정 -> mutate
+# ** -> 지수, ex) 2**3 => 8
+health = health %>% mutate(BMI = `신장(5cm단위)` / (`체중(5kg단위)` / 100)**2 )
+# View(health)
+# 음주여부와 흡연상태가 1인 사람의 수축기혈압 , 성별 조회. 단, 혈압 내림차순으로 정렬하세요.
+결과 = health %>% filter(음주여부 == 1 & 흡연상태 == 1) %>% select(수축기혈압, 성별) %>%
+  arrange(desc(수축기혈압))
+
+# 성별(성별)로 데이터를 그룹화하고, 각 그룹별 평균 BMI를 계산하세요. 결과는 성별과 평균_BMI 열로 구성되어야 합니다.
+# na.rm = TRUE : 결측값 제외
+결과 = health %>% group_by(성별) %>% summarise(평균_BMI = mean(BMI, na.rm = TRUE))
+
+# 식전혈당 126 이상인 사람 중 수축기혈압 상위 5명 출력
+결과 = health %>% filter(`식전혈당(공복혈당)` >= 126) %>% arrange(desc(수축기혈압)) %>%
+  slice(1:5)
+# 허리둘레 중앙값 조회
+결과 = health %>% summarise(허리둘레_중앙값 = median(허리둘레, na.rm = TRUE))

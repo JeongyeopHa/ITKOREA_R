@@ -1,0 +1,58 @@
+# 벡터 복습
+# 1. 벡터는 비슷한 데이터를 한 줄로 모아놓은 상자
+# 2. 벡터를 생성할 때는 c() Combind 라는 문법을 사용
+# 3. 벡터에서 값을 꺼낼 때는 []를 사용합니다.
+
+colors = c('red','blue','green') #벡터 생성
+
+print(colors[1]) # ctrl + shitf + s
+print(colors[c(2, 3)]) # 벡터에서 여러 값 꺼낼 때
+
+# **** 벡터와 조건문 활용
+# ifelse : 만약 ~ 라면
+x = c(1,2,3,4,5)
+result = ifelse(x %% 2 == 0, '짝수', '홀수')
+print(result)
+
+# 데이터프레임
+# 가로(행)와 세로(열)가 있는 테이블
+
+# 벡터생성
+id = c(1,2,3)
+name = c('김길동','홍길동','박길동')
+age = c(20,30,40)
+# 데이터프레임 생성
+df = data.frame(id,name,age) # 벡터를 묶은게 데이터프레임이다.
+View(df) #테이블 형태로 출력
+
+# EMPNO : 사원번호
+# ENAME : 사원명
+# JOB   : 직책
+# MGR   : 사수번호
+# HIREDATE : 입사날짜
+# SAL : 급여
+# COMM : 보너스(커미션)
+# DEPTNO : 부서번호
+
+emp = data.frame(
+  empNO = c(7369, 7499, 7521, 7566, 7698, 7782, 7788, 7839, 7844, 7900),
+  ENAME = c("SMITH", "ALLEN", "WARD", "JONES", "BLAKE", "CLARK", "SCOTT", "KING", "TURNER", "ADAMS"),
+  JOB = c("CLERK", "SALESMAN", "SALESMAN", "MANAGER", "MANAGER", "MANAGER", "ANALYST", "PRESIDENT", "SALESMAN", "CLERK"),
+  MGR = c(7902, 7698, 7698, 7839, 7839, 7839, 7566, NA, 7698, 7788),
+  HIREDATE = as.Date(c("1980-12-17", "1981-02-20", "1981-02-22", 
+                       "1981-04-02", "1981-05-01", "1981-06-09",
+                       "1982-12-09", "1981-11-17", "1981-09-08",
+                       "1983-01-12")),
+  SAL = c(800, 1600, 1250, 2975, 2850, 2450, 3000, 5000, 1500, 1100),
+  COMM = c(NA, 300, 500, NA, NA, NA, NA, NA, NA, NA),
+  DEPTNO = c(20, 30, 30, 20, 30, 10, 20, 10, 30, 20)
+)
+View(emp)
+
+
+
+
+
+
+
+

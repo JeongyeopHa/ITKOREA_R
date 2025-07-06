@@ -1,0 +1,89 @@
+# 경로 확인
+print(getwd())
+print(list.files()) # 해당 경로에 있는 파일 조회
+
+# csv파일 불러오기
+emp = read.csv('emp.csv')
+# View(emp) #데이터 확인
+# 데이터 확인
+# 문제 1: 행과 열의 개수 파악
+print(dim(emp)) # dimension : 차원
+# 문제 2: 전체 컬럼만 조회
+print(colnames(emp)) # col : 컬럼 + names : 이름(들)
+# 문제 3: 데이터 상위 1~2행 출력하기
+print(head(emp,2))
+# 문제 4: 데이터 마지막 3개행을 출력하기
+print(tail(emp,3)) 
+# 문제 5: 데이터 타입 확인***
+str(emp) # structure : 구조
+
+## dplyr (디플리알) -> 데이터 가공(전처리)
+# 데이터 전처리가 실무에서 80~90% 하는일
+
+# install.packages("dplyr") # 1. 설치 필요
+library(dplyr) #설치한 프로그램 가져오기(임포트 import)
+
+# 급여(SAL)가 3000 이상인 직원들의 이름(ENAME)과 직업(JOB)을 출력하세요.
+결과 = emp %>% filter(SAL >= 3000) %>% select(ENAME, JOB)
+print(결과)
+
+# 직업(JOB)별 평균 급여(SAL)를 계산하고 출력하세요.
+# R은 group_by만 단독적으로 사용 시 의미없는 결과가 나온다.
+# 그룹별 평균, 총합, 최댓, 최솟, 중앙, 표준편차.. summarise(요약하다)
+# mean : 평균, n : 행의 수, sum : 총합
+결과 = emp %>% group_by(JOB) %>% 
+  summarise(AVG_SAL = mean(SAL), EMP_COUNT = n(), SUM_SAL = sum(SAL))
+print(결과)
+# 급여가 2000 이상인 직원들만 필터링한 후, 부서 번호(DEPTNO)별 직원 수를 계산하세요.
+결과 = emp %>%
+  filter(SAL >= 2000) %>%
+  group_by(DEPTNO) %>%
+  summarize(EMP_COUNT = n())
+print(결과)
+
+# dept 데이터 불러오기, str로 구조확인
+dept = read.csv('dept.csv')
+str(dept)
+# View(dept)
+
+# 디플리알 병합(JOIN)
+# 두 데이터 프레임을 특정 컬럼을 기준으로 병합합니다.
+조인결과 = emp %>% inner_join(dept, by = "DEPTNO" )
+#View(조인결과) # dept에 있는 컬럼까지 확인가능
+# 근무지가 "DALLAS"인 직원들의 이름 출력하기
+조인결과= emp %>% inner_join(dept, by = "DEPTNO") %>% filter(LOC == 'DALLAS') %>%
+  select(ENAME, JOB)
+print(조인결과)
+
+# slice : 자르다(DBMS = limit)
+결과 = emp %>% slice(2, 4)
+print(결과) # 2번째 행과 4번째 행 추출
+
+# 첫 번째 ~ 세 번째 직원 행 추출
+결과 = emp %>% slice(1:3)
+print(결과)
+# slice 맨 마지막에 작성(대부분 경우)
+# 문제 풀기 2,4,8,10번 풀기
+
+# 문제 2: "RESEARCH" 부서에 근무하는 직원들의 이름(ENAME)과 급여(SAL)를 출력하세요.
+조인결과 = emp %>% inner_join(dept, by = "DEPTNO") %>% filter(LOC == 'RESEARCH') %>%
+  select(ENAME, SAL)
+print(조인결과)
+# 문제 4: 각 부서(DNAME)별 직원 수를 계산하고 출력하세요.
+조인결과 = emp %>% inner_join(dept, by = "DEPTNO") %>% group_by(DNAME) %>%
+  summarise(EMP_COUNT = n()) %>% slice(1)
+print(조인결과)
+# 문제 8: "SALES" 부서에서 근무하는 직원들의 이름(ENAME), 급여(SAL), 커미션(COMM)을 출력하세요.(skip)
+# 문제 10: 직업(JOB)이 "MANAGER"인 직원들의 이름(ENAME), 부서명(DNAME), 급여(SAL)을 출력하세요.
+조인결과 = emp %>% inner_join(dept, by = "DEPTNO") %>% filter(JOB == 'MANAGER') %>%
+  select(ENAME, DNAME, SAL)
+
+# 문제 4
+# arrange : 정렬, desc: 내림차순
+조인결과 = emp %>% inner_join(dept, by = "DEPTNO") %>% group_by(DNAME) %>%
+  summarise(EMP_COUNT = n()) %>% arrange(desc(EMP_COUNT)) %>% slice(1:2)
+print(조인결과)
+
+
+
+

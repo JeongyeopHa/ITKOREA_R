@@ -1,0 +1,104 @@
+---
+title: "25년 대전날씨데이터분석"
+author: "하정엽"
+date: "2025-06-29"
+output: word_document
+---
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+weather = read.csv('대전날씨데이터.csv', na.strings = c(""), fileEncoding = 'CP949', encoding = 'UTF-8', check.names = FALSE)
+colnames(weather) = c('station_id', 'station_name', 'datetime', 'temp', 'precip','windspeed','winddir','humidity','CA')
+weather$precip = ifelse(is.na(weather$precip),0,weather$precip)
+weather$datetime = as.POSIXct(weather$datetime, format= '%Y-%m-%d %H:%M')
+```
+
+
+## 1. 기상청 데이터소개
+
+본 문서는 2025년 1월 1일 ~ 2025년 6월 28일 대전 지역의 시간별 기온, 풍속, 습도 데이터를 분석합니다.
+-+
+- **지점** : 대전
+- **변수** : 일시,기온, 강수량, 풍속, 습도, 전운량
+
+## 2. 기상청 데이터 요약
+
+기온,풍속,습도 데이터를 요약합니다.
+```{r, echo=FALSE}
+#코드는 x 결과만 문서에 출력
+summary(weather$temp) #기온 데이터 요약
+summary(weather$windspeed) #풍속 데이터 요약
+summary(weather$humidity) #습도 데이터 요약
+```
+
+기온,풍속,습도 데이터의 상관계수를 확인합니다.
+```{r, echo=FALSE}
+# 기온, 풍속, 습도 상관계수 행렬 조회
+weather_var = weather[,c('temp','windspeed','humidity')]
+cor_mat = cor(weather_var, use='complete.obs') # complete.obs 결측값 제거
+print(cor_mat)
+```
+```{r, echo=FALSE}
+library(corrgram)
+corrgram(cor_mat, main = '기온,풍속,습도 상관계수 시각화', upper.panel =panel.cor)
+```
+
+## 3. 기상청 데이터 시각화
+
+온도데이터 분포를 히스토그램으로 확인합니다.
+```{r, echo=FALSE}
+hist(weather$temp, main='온도데이터 분포', xlab = '온도(c)')
+```
+
+습도데이터 분포를 히스토그램으로 확인합니다.
+```{r, echo=FALSE}
+hist(weather$humidity, main='습도데이터 분포', xlab = '습도(%)')
+```
+
+풍속데이터를 박스플롯으로 확인합니다.
+```{r, echo=FALSE}
+boxplot(weather$windspeed, main='풍속데이터', ylab='풍속(m/s)')
+```
+
+`풍속`과 `기온` 관계를 산점도로 확인합니다.
+```{r, echo=FALSE}
+plot(weather$temp, weather$windspeed, main='기온과 풍속 관계', xlab='온도', ylab='풍속')
+#회귀선 추가
+model = lm(weather$windspeed ~ weather$temp)#풍속이 기온에 영향을 미치는가
+abline(model,col='red', lwd=2)
+```
+
+
+## 4. 기상청 데이터 전처리
+
+풍속데이터의 이상치 개수를 조회합니다. 이상치는 IQR를 이용합니다.
+IQR은 데이터를 네 부분으로 나눌 때 가운데 50%의 범위를 의미합니다.
+```{r, echo=FALSE}
+Q1 = quantile(weather$windspeed, 0.25)
+Q3 = quantile(weather$windspeed, 0.75)
+IQR_VALUE = Q3-Q1
+
+lower_bound = Q1 - 1.5*IQR_VALUE
+upper_bound = Q3 + 1.5*IQR_VALUE
+
+# 이상치 확인
+library(dplyr)
+outliers = weather %>% filter(windspeed < lower_bound | windspeed > upper_bound) %>% nrow()
+cat('풍속 이상치 데이터 개수 : ', outliers, '\n')
+```
+
+## 5. 결론
+
+- 대전의 25년도 기온,풍속,습도 변화를 간단히 분석하였습니다. 
+- 다른 지점(서울,부산, 경기 등)도 동일 방식으로 분석 가능해 보입니다.
+
+
+
+
+
+
+
+
+
+
+
+

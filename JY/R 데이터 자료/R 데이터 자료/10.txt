@@ -1,0 +1,4 @@
+ast_result_by_male = health %>% filter(성별 == 1) %>%
+  mutate(AST_SCALED = (`혈청지오티(AST)` - min(`혈청지오티(AST)`)) / 
+                                            (max(`혈청지오티(AST)`) - min(`혈청지오티(AST)`)))
+View(ast_result_by_male)

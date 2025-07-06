@@ -1,0 +1,4 @@
+health = read.csv('국민건강보험공단_건강검진정보.csv', 
+                  fileEncoding = 'CP949', 
+                  encoding = 'UTF-8', 
+                  check.names = FALSE)
